@@ -1,0 +1,90 @@
+---
+title: "Diversity MS, Figure 1"
+author: "LMC"
+date: "February 1, 2017"
+output: html_document
+---
+
+```{r}
+#call packages
+library(ggplot2)
+library(plyr)
+library(reshape)
+library(dplyr)
+
+#load data
+mydata<-read.csv("data/MDN manuscript_MS-SCB membership.csv")
+
+#ugly code to sort data amd estimate %
+mydata<-mutate(mydata,percent.members=(No_of_members/(sum(mydata$No_of_members))*100))
+mydatas <- summarise(group_by(mydata, Region), percent.region=sum(percent.members))
+mydatas$Overrepresented <- c("No", "No", "Yes", "Yes", "No", "No", "No", "No", "No", "No", "Yes", "Yes", "No")
+mydatab <- summarise(group_by(mydata, Continent), percent.cont=sum(percent.members))
+mydatab$Overrepresented <- c("No", "No", "Yes", "Yes", "No", "No", "No", "Yes", "Yes", "No")
+
+overdata <- mydata %>% filter(Overrepresented == "yes")
+overdata <- overdata %>% select(country, percent.members)
+underdata <- mydata %>% filter(Overrepresented == "no")
+sumunder <- underdata %>% group_by(Overrepresented) %>% summarise(percent.members=sum(percent.members))
+sumunder$country <- c("Rest of the world")
+sumunder <- sumunder %>% select(country, percent.members)
+mydat <- rbind(overdata,sumunder)
+mydat$Overrepresented <- c("Yes", "Yes", "Yes", "Yes", "No")
+```
+
+## Including Plots
+
+```{r, echo=FALSE}
+#Option A
+pdf("graphs/PercentageContinent.pdf", width = 8, height = 6, useDingbats=FALSE, encoding="MacRoman")
+my.barplotA<-ggplot(mydatab, aes(x=reorder(Continent,-percent.cont), y=percent.cont, fill=Overrepresented, width=0.5))+
+  geom_bar(stat="identity")+
+  theme(text = element_text(size=7))+
+  theme_classic()+
+  coord_flip() +
+  labs(x = "", y = "% of Membership") +
+  theme(axis.text.x = element_text(size  = 15),
+        axis.text.y = element_text(size  = 15)) +
+  theme(axis.title.x = element_text(colour="black", size=20)) +
+  theme(axis.title.y = element_text(face="bold", colour="black", size=20)) +
+  theme(legend.position="none")
+my.barplotA
+dev.off()
+my.barplotA
+
+#Option B
+pdf("graphs/PercentageRegion.pdf", width = 8, height = 6, useDingbats=FALSE, encoding="MacRoman")
+my.barplotB<-ggplot(mydatas, aes(x=reorder(Region,-percent.region), y=percent.region, fill=Overrepresented, width=0.5))+
+  geom_bar(stat="identity")+
+  theme(text = element_text(size=7))+
+  theme_classic()+
+  coord_flip() +
+  labs(x = "", y = "% of Membership") +
+  theme(axis.text.x = element_text(size  = 15),
+        axis.text.y = element_text(size  = 15)) +
+  theme(axis.title.x = element_text(colour="black", size=20)) +
+  theme(axis.title.y = element_text(face="bold", colour="black", size=20)) +
+  theme(legend.position="none")
+my.barplotB
+dev.off()
+my.barplotB
+
+#Option C
+pdf("graphs/PercentageMajor.pdf", width = 8, height = 6, useDingbats=FALSE, encoding="MacRoman")
+my.barplotC<-ggplot(mydat, aes(x=ordered(mydat$country, levels = c("United States of America", "Canada", "Australia", "United Kingdom", "Rest of the world")), y=percent.members, 
+                              fill=Overrepresented, width=0.5))+
+  geom_bar(stat="identity")+
+  theme(text = element_text(size=7))+
+  theme_classic()+
+  coord_flip() +
+  labs(x = "", y = "% of Membership") +
+  theme(axis.text.x = element_text(size  = 15),
+        axis.text.y = element_text(size  = 15)) +
+  theme(axis.title.x = element_text(colour="black", size=20)) +
+  theme(axis.title.y = element_text(face="bold", colour="black", size=20)) +
+  theme(legend.position="none")
+my.barplotC
+dev.off()
+my.barplotC
+```
+
