@@ -26,7 +26,7 @@ overdata <- mydata %>% filter(Overrepresented == "yes")
 overdata <- overdata %>% select(country, percent.members)
 underdata <- mydata %>% filter(Overrepresented == "no")
 sumunder <- underdata %>% group_by(Overrepresented) %>% summarise(percent.members=sum(percent.members))
-sumunder$country <- c("Rest of the world")
+sumunder$country <- c("Other countries")
 sumunder <- sumunder %>% select(country, percent.members)
 mydat <- rbind(overdata,sumunder)
 mydat$Overrepresented <- c("Yes", "Yes", "Yes", "Yes", "No")
@@ -71,7 +71,7 @@ my.barplotB
 
 #Option C
 pdf("graphs/PercentageMajor.pdf", width = 8, height = 6, useDingbats=FALSE, encoding="MacRoman")
-my.barplotC<-ggplot(mydat, aes(x=ordered(mydat$country, levels = c("United States of America", "Canada", "Australia", "United Kingdom", "Rest of the world")), y=percent.members, 
+my.barplotC<-ggplot(mydat, aes(x=ordered(mydat$country, levels = c("United States of America", "Canada", "Australia", "United Kingdom", "Other countries")), y=percent.members, 
                               fill=Overrepresented, width=0.5))+
   geom_bar(stat="identity")+
   theme(text = element_text(size=7))+
